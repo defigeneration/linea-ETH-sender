@@ -19,20 +19,20 @@ if len(private_keys) != len(destinations):
 # Подключение к Linea Mainnet
 web3 = Web3(Web3.HTTPProvider(RPC_URL))
 
-if not web3.isConnected():
+if not web3.is_connected():
     raise ConnectionError('Не удалось подключиться к Linea Mainnet')
 
 # Функция для отправки ETH
 def send_eth(private_key, to_address, min_balance=0.0055, max_balance=0.0067):
     account = web3.eth.account.from_key(private_key)
-    nonce = web3.eth.getTransactionCount(account.address)
+    nonce = web3.eth.get_transaction_count(account.address)
     
     balance = web3.eth.get_balance(account.address)
-    gas_price = web3.toWei('50', 'gwei')
+    gas_price = web3.to_wei('50', 'gwei')
     gas_limit = 21000
     
     # Сумма, которую нужно оставить на кошельке
-    leave_amount = web3.toWei(random.uniform(min_balance, max_balance), 'ether')
+    leave_amount = web3.to_wei(random.uniform(min_balance, max_balance), 'ether')
     
     # Рассчитываем сумму для отправки
     value = balance - (gas_limit * gas_price) - leave_amount
@@ -42,7 +42,7 @@ def send_eth(private_key, to_address, min_balance=0.0055, max_balance=0.0067):
         return
     
     transaction = {
-        'to': to_address,
+        'to': Web3.to_checksum_address(to_address),
         'value': value,
         'gas': gas_limit,
         'gasPrice': gas_price,
@@ -50,8 +50,8 @@ def send_eth(private_key, to_address, min_balance=0.0055, max_balance=0.0067):
         'chainId': 59144  # Chain ID для Linea Mainnet
     }
 
-    signed_tx = web3.eth.account.signTransaction(transaction, private_key)
-    tx_hash = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    signed_tx = web3.eth.account.sign_transaction(transaction, private_key)
+    tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
     print(f'Transaction sent: {tx_hash.hex()}')
 
 # Параметры задержки
